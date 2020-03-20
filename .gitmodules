@@ -1,0 +1,9 @@
+[submodule "logger"]
+	path = logger
+	url = ../logger.git
+[submodule "minecraft-symbols"]
+	path = minecraft-symbols
+	url = ../minecraft-symbols.git
+[submodule "mcpelauncher-core"]
+	path = mcpelauncher-core
+	url = ../mcpelauncher-core.git
