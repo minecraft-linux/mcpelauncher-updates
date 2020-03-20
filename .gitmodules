@@ -7,3 +7,6 @@
 [submodule "mcpelauncher-core"]
 	path = mcpelauncher-core
 	url = ../mcpelauncher-core.git
+[submodule "mod-ndk-gnustl"]
+	path = mod-ndk-gnustl
+	url = ../../MCMrARM/mod-ndk-gnustl.git
