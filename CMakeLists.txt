@@ -4,7 +4,9 @@ project(mcpelauncherlegacys LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include(mod-ndk-gnustl/CMakeLists.txt)
+if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    include(mod-ndk-gnustl/CMakeLists.txt)
+endif()
 
 add_subdirectory(mcpelauncher-core)
 add_subdirectory(minecraft-symbols)

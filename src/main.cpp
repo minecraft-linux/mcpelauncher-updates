@@ -9,7 +9,7 @@
 
 extern "C" void mod_init() {
     auto mc = dlopen("libminecraftpe.so", RTLD_LAZY);
-    Log::info("MINECRAFT FOUND AT ", "%d", (int)mc);
+    Log::info("MINECRAFT FOUND AT ", "%d", (intptr_t)mc);
     // mcpe::string::empty = (mcpe::string*) dlsym(mc, "_ZN4Util12EMPTY_STRINGE");
     Log::info("MOD", "Symbol init");
     minecraft_symbols_init(mc);
