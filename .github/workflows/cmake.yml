@@ -19,7 +19,6 @@ jobs:
         - abi: arm64-v8a
           openssltarget: android-arm64
     steps:
-    - run: sudo apt update && sudo apt install -y perl
     - uses: actions/checkout@v2
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
@@ -33,7 +32,7 @@ jobs:
         path: openssl
         
     - name: Configure and build Openssl
-      run: ./Configure ${{ matrix.openssltarget || format('android-{0}', matrix.abi) }} && make install_runtime_libs 
+      run: perl ./Configure ${{ matrix.openssltarget || format('android-{0}', matrix.abi) }} && make install_runtime_libs 
       env:
         PATH: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/
         ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
