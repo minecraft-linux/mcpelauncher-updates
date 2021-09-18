@@ -24,11 +24,11 @@ jobs:
       id: setup-ndk
       with:
         ndk-version: r21e
-        add-to-path: false
+        add-to-path: true
     - uses: actions/checkout@v2
       with:
         repository: "openssl/openssl"
-        ref: OpenSSL_1_1_1-stable
+        ref: master
         path: openssl
         
     - name: Configure and build Openssl
