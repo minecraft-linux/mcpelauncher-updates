@@ -15,7 +15,7 @@ jobs:
         abi: ["x86_64", "arm64-v8a", "x86", "armeabi-v7a" ]
         include:
         - abi: armeabi-v7a
-          openssltarget: android-armeabi
+          openssltarget: android-arm
         - abi: arm64-v8a
           openssltarget: android-arm64
     steps:
