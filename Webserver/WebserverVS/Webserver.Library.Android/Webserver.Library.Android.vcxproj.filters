@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="Android.h" />
+    <ClInclude Include="..\..\..\Http\TLSSocketListener.h" />
+    <ClInclude Include="..\..\..\Http\TCPSocket.h" />
+    <ClInclude Include="..\..\..\Http\TCPSocketListener.h" />
+    <ClInclude Include="..\..\..\Http\TLSTCPSocket.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Android.cpp" />
+    <ClCompile Include="..\..\..\Http\TLSSocketListener.cpp" />
+    <ClCompile Include="..\..\..\Http\TCPSocket.cpp" />
+    <ClCompile Include="..\..\..\Http\TCPSocketListener.cpp" />
+    <ClCompile Include="..\..\..\Http\TLSTCPSocket.cpp" />
+  </ItemGroup>
+</Project>

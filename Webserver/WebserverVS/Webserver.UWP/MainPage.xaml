@@ -1,0 +1,36 @@
+﻿<Page
+    x:Class="Webserver.UWP.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Webserver.UWP"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Loaded="Page_Loaded">
+
+    <Grid Name="root" Background="Transparent">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Name="Titlebar" SizeChanged="Page_SizeChanged">
+            <Rectangle Name="maingrid" Height="{Binding ElementName=Titlebar,Path=Height}"></Rectangle>
+            <Rectangle Fill="#300000ff" Width="{Binding ElementName=Titlebar,Path=Width}" Height="{Binding ElementName=Titlebar,Path=Height}"></Rectangle>
+            <TextBlock VerticalAlignment="Center">Webserver</TextBlock>
+        </Grid>
+        <Grid Grid.Row="1" Background="White">
+            
+        </Grid>
+    </Grid>
+    <!--<Page.TopAppBar>
+        <CommandBar>
+            <AppBarButton Icon="Setting" Label="Settings"/>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Label="About"/>
+            </CommandBar.SecondaryCommands>
+            <CommandBar.Content>
+                <TextBlock FontSize="40">Webserver</TextBlock>
+            </CommandBar.Content>
+        </CommandBar>
+    </Page.TopAppBar>-->
+</Page>

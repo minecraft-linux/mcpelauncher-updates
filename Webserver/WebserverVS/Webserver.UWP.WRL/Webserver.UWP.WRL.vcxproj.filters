@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>48655df8-cc2d-401c-874a-0cc9816daf27</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>9ede820f-b808-4b72-b772-645bc4461808</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Net">
+      <UniqueIdentifier>{1fbfbf48-5ae4-4ae7-b893-dac21dfcbbd0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="MainPage.xaml.cpp" />
+    <ClCompile Include="AboutPage.xaml.cpp" />
+    <ClCompile Include="SettingsPage.xaml.cpp" />
+    <ClCompile Include="..\..\..\Http\Frame.cpp" />
+    <ClCompile Include="..\..\..\Http\HPack.cpp" />
+    <ClCompile Include="..\..\..\Http\HPackDecoder.cpp" />
+    <ClCompile Include="..\..\..\Http\HPackEncoder.cpp" />
+    <ClCompile Include="..\..\..\Http\MimeType.cpp" />
+    <ClCompile Include="..\..\..\Http\Request.cpp" />
+    <ClCompile Include="..\..\..\Http\Response.cpp" />
+    <ClCompile Include="..\..\..\Http\Stream.cpp" />
+    <ClCompile Include="..\..\..\Http\utility.cpp" />
+    <ClCompile Include="..\..\..\Http\Connection.cpp" />
+    <ClCompile Include="..\..\Net\TLSSocket.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Net\TLSSocketListener.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Net\Socket.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Net\SocketListener.cpp">
+      <Filter>Net</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="AboutPage.xaml.h" />
+    <ClInclude Include="SettingsPage.xaml.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\..\..\Http\ErrorCode.h" />
+    <ClInclude Include="..\..\..\Http\Frame.h" />
+    <ClInclude Include="..\..\..\Http\HPack.h" />
+    <ClInclude Include="..\..\..\Http\HPackDecoder.h" />
+    <ClInclude Include="..\..\..\Http\HPackEncoder.h" />
+    <ClInclude Include="..\..\..\Http\MimeType.h" />
+    <ClInclude Include="..\..\..\Http\Request.h" />
+    <ClInclude Include="..\..\..\Http\Response.h" />
+    <ClInclude Include="..\..\..\Http\Setting.h" />
+    <ClInclude Include="..\..\..\Http\Stream.h" />
+    <ClInclude Include="..\..\..\Http\utility.h" />
+    <ClInclude Include="..\..\..\Http\Connection.h" />
+    <ClInclude Include="..\..\Net\SocketListener.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Net\TLSSocket.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Net\TLSSocketListener.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Net\Socket.h">
+      <Filter>Net</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Webserver.UWP.WRL_TemporaryKey.pfx" />
+    <None Include="..\..\..\..\openssl\winarmcx\libcrypto-1_1.dll" />
+    <None Include="..\..\..\..\openssl\winarmcx\libssl-1_1.dll" />
+    <None Include="..\..\..\..\uftp_src-4.9.3\uftpd.dll" />
+    <None Include="..\..\..\..\uftp_src-4.9.3\uftp.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainPage.xaml" />
+    <Page Include="SettingsPage.xaml" />
+    <Page Include="AboutPage.xaml" />
+    <Page Include="FileProgress.xaml" />
+  </ItemGroup>
+</Project>

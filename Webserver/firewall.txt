@@ -1,0 +1,1 @@
+New-NetFirewallRule -DisplayName "WebserverConsole" -Action Allow -Description "Http und Https erlauben" -Direction Inbound -Enabled True -LocalPort 80,443 -Name "Webserver" -Program "C:\Data\Users\Administrator\Documents\WebserverConsole.exe" -Protocol "TCP"
