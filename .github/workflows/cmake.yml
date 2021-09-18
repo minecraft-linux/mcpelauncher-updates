@@ -14,10 +14,16 @@ jobs:
       matrix:
         abi: ["x86_64", "arm64-v8a", "x86", "armeabi-v7a" ]
         include:
+        - abi: x86_64
+          ndktarget: x86_64-linux-android-
+        - abi: x86
+          ndktarget: i686-linux-android-
         - abi: armeabi-v7a
           openssltarget: android-arm
+          ndktarget: arm-linux-androideabi-
         - abi: arm64-v8a
           openssltarget: android-arm64
+          ndktarget: aarch64-linux-android-
     steps:
     - run: sudo apt update && sudo apt install llvm g++
     - uses: actions/checkout@v2
@@ -35,9 +41,11 @@ jobs:
     - name: Configure and build Openssl
       run: |
         export PATH="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/:$PATH"
-        ./Configure ${{ matrix.openssltarget || format('android-{0}', matrix.abi) }} && sudo make install_runtime_libs 
+        ./Configure ${{ matrix.openssltarget || format('android-{0}', matrix.abi) }} && make build_libs
       env:
         ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
+        LD: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{matrix.ndktarget}}ld
+        RANLIB: ${{ steps.setup-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/${{matrix.ndktarget}}ranlib
       working-directory: ${{github.workspace}}/openssl
       
     - uses: actions/upload-artifact@v2
@@ -51,12 +59,13 @@ jobs:
         repository: "protocolbuffers/protobuf"
         ref: 3.18.x
         path: protobuf
+        submodules: recursive
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/buildprotobuf -S protobuf/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.abi }}
+      run: cmake -B ${{github.workspace}}/buildprotobuf -S protobuf/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_TOOLCHAIN_FILE=${{ steps.setup-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake -DANDROID_ABI=${{ matrix.abi }} -Dprotobuf_BUILD_TESTS=OFF
     - name: Build Protobuf
       run: cmake --build ${{github.workspace}}/buildprotobuf --config ${{env.BUILD_TYPE}}
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/buildprotobufhost -S protobuf/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/buildprotobufhost -S protobuf/cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -Dprotobuf_BUILD_TESTS=OFF
     - name: Build Protobuf
       run: cmake --build ${{github.workspace}}/buildprotobufhost --config ${{env.BUILD_TYPE}} --target protoc
     - uses: actions/upload-artifact@v2
