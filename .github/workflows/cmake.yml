@@ -25,7 +25,7 @@ jobs:
           openssltarget: android-arm64
           ndktarget: aarch64-linux-android-
     steps:
-    - run: sudo apt update && sudo apt install llvm g++ ninja
+    - run: sudo apt update && sudo apt install llvm g++ ninja-build
     - uses: actions/checkout@v2
     - uses: nttld/setup-ndk@v1
       id: setup-ndk
