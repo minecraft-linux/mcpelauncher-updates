@@ -2,23 +2,15 @@
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <sys/mman.h>
-
-// extern "C" void * mcpelauncher_hook(void* sym, void* hook, void** orig) {
-//     printf("mcpelauncher_hook: something failed\n");
-//     return nullptr;
-// }
-
-
-// extern "C" void mcpelauncher_preinithook2(const char*sym, void*val, void*user, void (*cbk)(void*user, void*orig)) {
-//     printf("mcpelauncher_preinithook2: something failed\n");
-// }
-// extern "C" void mcpelauncher_preinithook(const char*sym, void*val, void **orig) {
-//     printf("mcpelauncher_preinithook: something failed\n");
-// }
-
+#include <playapi/api.h>
+#include <playapi/device_info.h>
+#include <playapi/login.h>
+#include <playapi/file_login_cache.h>
+#include <string> 
+#include <jnivm/vm.h>
+#include <jnivm/env.h>
 
 #define HIDE __attribute__((visibility( "hidden" )))
-// #define HIDE
 
 HIDE void (*mcpelauncher_preinithook)(const char*sym, void*val, void **orig);
 
@@ -30,9 +22,7 @@ HIDE void Mouse_feed(char a, char b, short c, short d, short e, short f) {
         scrollval = (signed char&)b;
         if(scrollval < 0) {
             Mouse_feed_org(a, b, c, d, e, f);
-        }/*  else {
-            printf("feed: %d\n", (int)scrollval);
-        } */
+        }
     } else {
         Mouse_feed_org(a, b, c, d, e, f);
     }
@@ -45,20 +35,15 @@ HIDE void enqueueButtonPressAndRelease_hook(void*q, unsigned int c, int d, int e
 }
 HIDE void (*MouseMapper_tick_org)(void*a,void*b,void*c);
 HIDE void MouseMapper_tick(void*a,void*b,void*c) {
-    // scrollval = 0;
     MouseMapper_tick_org(a, b, c);
     if (scrollval > 0 && enqueueButtonPressAndRelease) {
         enqueueButtonPressAndRelease(b, 425082297, 0, 0);
         scrollval = 0;
-        // enqueueButtonPressAndRelease(b, 1, 0, 425082297);
-        //enqueueButtonPressAndRelease(b, 1, 0, 425082297);
     }
 }
 HIDE int (*JNI_OnLoad_) (void*,void*);
 HIDE void* pthread_getattr_np_org;
 
-#include <jnivm/vm.h>
-#include <jnivm/env.h>
 HIDE void* mremap_fake(void *old_address, size_t old_size,
                     size_t new_size, int flags, ...) {
         return MAP_FAILED;
@@ -66,11 +51,10 @@ HIDE void* mremap_fake(void *old_address, size_t old_size,
 HIDE void*_ZNK11AppPlatform12isLANAllowedEv;
 HIDE void*__ZNK11AppPlatform12isLANAllowedEv;
 
-#include <playapi/api.h>
-#include <playapi/device_info.h>
-#include <playapi/login.h>
-#include <playapi/file_login_cache.h>
-#include <string> 
+#ifdef NDEBUG
+#define printf(...)
+#endif
+
 extern "C" void mod_preinit() {
     auto h = dlopen("libmcpelauncher_mod.so", 0);
     if(!h) {
@@ -122,24 +106,12 @@ extern "C" void mod_preinit() {
     }, [](std::exception_ptr e) {
         abort();
     });
-    // mcpelauncher_preinithook("JNI_OnLoad", (void*)+[](void*jvm,void*b) {
-    //     printf("JNI_OnLoad: %p %p\n", jvm, JNI_OnLoad_);
-    //     auto vm = jnivm::VM::FromJavaVM((JavaVM*)jvm);
-    //     printf("jnivm::VM::FromJavaVM: %p\n", vm);
-    //     auto c = vm->GetJavaVM();
-    //     //->GetClass("java/lang/String");
-    //     //printf("GetClass: %s\n", c->getName().data());
-    //     printf("GetJavaVM: %p\n", c);
-        
-    //     if(JNI_OnLoad_)
-    //     return JNI_OnLoad_(jvm, b);
-    //     return 0;
-    // }, (void**)&JNI_OnLoad_);
-    
-    // mcpelauncher_preinithook("_ZN5Mouse4feedEccssss", (void*)&Mouse_feed, (void**)&Mouse_feed_org);
-    // // mcpelauncher_preinithook("android_main", (void*)&Mouse_feed, (void**)&Mouse_feed_org);
-    // mcpelauncher_preinithook("_ZN11MouseMapper4tickER15InputEventQueueR23ControllerIDtoClientMap", (void*)&MouseMapper_tick, (void**)&MouseMapper_tick_org);
-    // //mcpelauncher_preinithook("_ZN15InputEventQueue28enqueueButtonPressAndReleaseEj11FocusImpacti", (void*)&enqueueButtonPressAndRelease_hook, (void**)&enqueueButtonPressAndRelease);
+
+#if defined(__arm__) || defined(__aarch64__)
+    mcpelauncher_preinithook("_ZN5Mouse4feedEccssss", (void*)&Mouse_feed, (void**)&Mouse_feed_org);
+    mcpelauncher_preinithook("_ZN11MouseMapper4tickER15InputEventQueueR23ControllerIDtoClientMap", (void*)&MouseMapper_tick, (void**)&MouseMapper_tick_org);
+#endif
+
     mcpelauncher_preinithook("pthread_getattr_np", (void*)+[](pthread_t th, pthread_attr_t* attr) -> int {
         return 1;
     }, &pthread_getattr_np_org);
@@ -150,9 +122,9 @@ extern "C" void mod_preinit() {
     //mcpelauncher_preinithook("_ZNK11AppPlatform17supportsScriptingEv", (void*)+[](void* t) -> bool { abort() ;return true; }, nullptr);
     __ZNK11AppPlatform12isLANAllowedEv = (void*)+[](void*** t) -> bool {
         auto mc = dlopen("libminecraftpe.so", 0);
-    
+
+#ifndef NDEBUG
         printf("AppPlatform:\n");
-        // auto sym = dlsym(mc, "_ZN5Mouse4feedEccssss");
         auto appPlat = (void**)dlsym(mc, "_ZTV11AppPlatform");
         auto raw = &appPlat[2];
         for(int i = 0; raw[i] && raw[i] != (void*)0xffffffffffffffe8; i++) {
@@ -165,6 +137,7 @@ extern "C" void mod_preinit() {
             Dl_info data;
             printf("%p (%s)\n", othervt[i], dladdr(othervt[i], &data) ? data.dli_sname : "(unknown)");    
         }
+#endif
         auto _ZNK11AppPlatform19supportsFilePickingEv = (void**)dlsym(mc, "_ZNK11AppPlatform19supportsFilePickingEv");
         auto _ZNK11AppPlatform17supportsScriptingEv = (void**)dlsym(mc, "_ZNK11AppPlatform17supportsScriptingEv");
         auto _ZNK11AppPlatform25getPlatformUIScalingRulesEv = (void**)dlsym(mc, "_ZNK11AppPlatform25getPlatformUIScalingRulesEv");
@@ -207,13 +180,6 @@ extern "C" void mod_preinit() {
                 };
                 printf("Patched _ZNK11AppPlatform18supportsWorldShareEv\n");
             }
-            // if(raw[i] == _ZNK11AppPlatform20getLevelSaveIntervalEv) {
-            //     othervt[i] = (void*) +[](void*t) -> int {
-            //         printf("_ZNK11AppPlatform20getLevelSaveIntervalEv called\n");
-            //         return -1;
-            //     };
-            //     printf("Patched _ZNK11AppPlatform20getLevelSaveIntervalEv\n");
-            // }
             if(raw[i] == _ZNK11AppPlatform10getEditionEv) {
                 othervt[i] = (void*) +[](void*t) -> std::string {
                     printf("_ZNK11AppPlatform10getEditionEv called\n");
@@ -228,13 +194,6 @@ extern "C" void mod_preinit() {
                 };
                 printf("Patched _ZNK11AppPlatform27getDefaultNetworkMaxPlayersEv\n");
             }
-            // if(raw[i] == _ZNK11AppPlatform23supports3rdPartyServersEv) {
-            //     othervt[i] = (void*) +[](void*t) -> bool {
-            //         printf("_ZNK11AppPlatform23supports3rdPartyServersEv called\n");
-            //         return false;
-            //     };
-            //     printf("Patched _ZNK11AppPlatform23supports3rdPartyServersEv\n");
-            // }
             if(raw[i] == _ZNK11AppPlatform29allowsResourcePackDevelopmentEv) {
                 othervt[i] = (void*) +[](void*t) -> bool {
                     printf("_ZNK11AppPlatform29allowsResourcePackDevelopmentEv called\n");
@@ -249,20 +208,6 @@ extern "C" void mod_preinit() {
                 };
                 printf("Patched _ZN11AppPlatform22uiOpenRenderDistScalarEv\n");
             }
-            // if(raw[i] == _ZNK11AppPlatform30supportsAutoSaveOnDBCompactionEv) {
-            //     othervt[i] = (void*) +[](void*t) -> bool {
-            //         printf("_ZNK11AppPlatform30supportsAutoSaveOnDBCompactionEv called\n");
-            //         return false;
-            //     };
-            //     printf("Patched _ZNK11AppPlatform30supportsAutoSaveOnDBCompactionEv\n");
-            // }
-            // if(raw[i] == _ZNK11AppPlatform23isAutoCompactionEnabledEv) {
-            //     othervt[i] = (void*) +[](void*t) -> bool {
-            //         printf("_ZNK11AppPlatform23isAutoCompactionEnabledEv called\n");
-            //         return false;
-            //     };
-            //     printf("Patched _ZNK11AppPlatform23isAutoCompactionEnabledEv\n");
-            // }
             if(othervt[i] == __ZNK11AppPlatform12isLANAllowedEv) {
                 othervt[i] = _ZNK11AppPlatform12isLANAllowedEv;
                 printf("Patched __ZNK11AppPlatform12isLANAllowedEv back to org\n");
@@ -272,21 +217,12 @@ extern "C" void mod_preinit() {
         dlclose(mc);    
         return true;
     };
-    mcpelauncher_preinithook("_ZNK11AppPlatform12isLANAllowedEv", __ZNK11AppPlatform12isLANAllowedEv, &_ZNK11AppPlatform12isLANAllowedEv);
-    // mcpelauncher_preinithook("_ZNK11AppPlatform28requiresXboxLiveSigninToPlayEv", (void*)+[](void* t) -> bool { return true; }, nullptr);
-    
+    mcpelauncher_preinithook("_ZNK11AppPlatform12isLANAllowedEv", __ZNK11AppPlatform12isLANAllowedEv, &_ZNK11AppPlatform12isLANAllowedEv);    
 }
 
 extern "C" void mod_init() {
 
     auto mc = dlopen("libminecraftpe.so", 0);
-    
-    // // auto sym = dlsym(mc, "_ZN5Mouse4feedEccssss");
-    // auto appPlat = (void**)dlsym(mc, "_ZTV11AppPlatform");
-    // auto raw = &appPlat[2];
-    // if(mcpelauncher_hook(sym, (void*)&Mouse_feed, (void**)&Mouse_feed_org)) {
-
-    // }
     enqueueButtonPressAndRelease = (decltype(enqueueButtonPressAndRelease))dlsym(mc, "_ZN15InputEventQueue28enqueueButtonPressAndReleaseEj11FocusImpacti");
     if(!enqueueButtonPressAndRelease) {
         abort();

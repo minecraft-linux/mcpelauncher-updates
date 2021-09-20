@@ -162,9 +162,9 @@ http_response http_request::perform() {
             if(fres != end) {
                 // printf("std::stoll %ld\n", fres - beg);
                 auto s = std::string(beg, fres);
-                printf("s = %s\n", s.data());
+                // printf("s = %s\n", s.data());
                 auto len = std::stoll(s, nullptr, 16);
-                printf("len %lld\n", len);
+                // printf("len %lld\n", len);
                 if(len == 0) {
                     // printf("Request finished\n");
                     break;
