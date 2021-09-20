@@ -123,16 +123,16 @@ extern "C" void mod_preinit() {
     __ZNK11AppPlatform12isLANAllowedEv = (void*)+[](void*** t) -> bool {
         auto mc = dlopen("libminecraftpe.so", 0);
 
-#ifndef NDEBUG
-        printf("AppPlatform:\n");
         auto appPlat = (void**)dlsym(mc, "_ZTV11AppPlatform");
         auto raw = &appPlat[2];
+        auto othervt = *t;
+#ifndef NDEBUG
+        printf("AppPlatform:\n");
         for(int i = 0; raw[i] && raw[i] != (void*)0xffffffffffffffe8; i++) {
             Dl_info data;
             printf("%p (%s)\n", raw[i], dladdr(raw[i], &data) ? data.dli_sname : "(unknown)");
         }
         printf("othervt:\n");
-        auto othervt = *t;
         for(int i = 0; othervt[i] && othervt[i] != (void*)0xffffffffffffffe8; i++) {
             Dl_info data;
             printf("%p (%s)\n", othervt[i], dladdr(othervt[i], &data) ? data.dli_sname : "(unknown)");    
