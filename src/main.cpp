@@ -10,14 +10,16 @@
 #include <jnivm/vm.h>
 #include <jnivm/env.h>
 
-#define HIDE __attribute__((visibility( "hidden" )))
+#ifdef NDEBUG
+#define printf(...)
+#endif
 
-HIDE void (*mcpelauncher_preinithook)(const char*sym, void*val, void **orig);
+void (*mcpelauncher_preinithook)(const char*sym, void*val, void **orig);
 
-HIDE signed char scrollval = 0;
+signed char scrollval = 0;
 
-HIDE char (*Mouse_feed_org)(char, char, short, short, short, short);
-HIDE void Mouse_feed(char a, char b, short c, short d, short e, short f) {
+char (*Mouse_feed_org)(char, char, short, short, short, short);
+void Mouse_feed(char a, char b, short c, short d, short e, short f) {
     if(a == 4 && b != 0) {
         scrollval = (signed char&)b;
         if(scrollval < 0) {
@@ -27,35 +29,31 @@ HIDE void Mouse_feed(char a, char b, short c, short d, short e, short f) {
         Mouse_feed_org(a, b, c, d, e, f);
     }
 }
-HIDE void (*enqueueButtonPressAndRelease)(void*q, unsigned int, int, int);
-HIDE void enqueueButtonPressAndRelease_hook(void*q, unsigned int c, int d, int e) {
+void (*enqueueButtonPressAndRelease)(void*q, unsigned int, int, int);
+void enqueueButtonPressAndRelease_hook(void*q, unsigned int c, int d, int e) {
     enqueueButtonPressAndRelease(q, c, d, e);
     printf("enqueueButtonPressAndRelease_hook: %d %d %d\n", c, d, e);
     abort();
 }
-HIDE void (*MouseMapper_tick_org)(void*a,void*b,void*c);
-HIDE void MouseMapper_tick(void*a,void*b,void*c) {
+void (*MouseMapper_tick_org)(void*a,void*b,void*c);
+void MouseMapper_tick(void*a,void*b,void*c) {
     MouseMapper_tick_org(a, b, c);
     if (scrollval > 0 && enqueueButtonPressAndRelease) {
         enqueueButtonPressAndRelease(b, 425082297, 0, 0);
         scrollval = 0;
     }
 }
-HIDE int (*JNI_OnLoad_) (void*,void*);
-HIDE void* pthread_getattr_np_org;
+int (*JNI_OnLoad_) (void*,void*);
+void* pthread_getattr_np_org;
 
-HIDE void* mremap_fake(void *old_address, size_t old_size,
+void* mremap_fake(void *old_address, size_t old_size,
                     size_t new_size, int flags, ...) {
         return MAP_FAILED;
 }
-HIDE void*_ZNK11AppPlatform12isLANAllowedEv;
-HIDE void*__ZNK11AppPlatform12isLANAllowedEv;
+void*_ZNK11AppPlatform12isLANAllowedEv;
+void*__ZNK11AppPlatform12isLANAllowedEv;
 
-#ifdef NDEBUG
-#define printf(...)
-#endif
-
-extern "C" void mod_preinit() {
+extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
     auto h = dlopen("libmcpelauncher_mod.so", 0);
     if(!h) {
         return;
@@ -220,7 +218,7 @@ extern "C" void mod_preinit() {
     mcpelauncher_preinithook("_ZNK11AppPlatform12isLANAllowedEv", __ZNK11AppPlatform12isLANAllowedEv, &_ZNK11AppPlatform12isLANAllowedEv);    
 }
 
-extern "C" void mod_init() {
+extern "C" __attribute__ ((visibility ("default"))) void mod_init() {
 
     auto mc = dlopen("libminecraftpe.so", 0);
     enqueueButtonPressAndRelease = (decltype(enqueueButtonPressAndRelease))dlsym(mc, "_ZN15InputEventQueue28enqueueButtonPressAndReleaseEj11FocusImpacti");
