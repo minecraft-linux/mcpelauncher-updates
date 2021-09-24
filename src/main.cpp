@@ -219,11 +219,7 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
 }
 
 extern "C" __attribute__ ((visibility ("default"))) void mod_init() {
-
     auto mc = dlopen("libminecraftpe.so", 0);
     enqueueButtonPressAndRelease = (decltype(enqueueButtonPressAndRelease))dlsym(mc, "_ZN15InputEventQueue28enqueueButtonPressAndReleaseEj11FocusImpacti");
-    if(!enqueueButtonPressAndRelease) {
-        abort();
-    }
     dlclose(mc);
 }
