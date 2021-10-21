@@ -133,6 +133,9 @@ http_response http_request::perform() {
     hints.ai_protocol = IPPROTO_TCP;
     auto sslctx = SSL_CTX_new(TLS_client_method());
     auto sock = Net::TLSSocket::Connect(req.authority, 443, false);
+    if(!sock) {
+        throw std::runtime_error("Connection failed");
+    }
     auto ok = sock->GetOutputStream().SendAll((const uint8_t*)payload.data(), payload.length());
     auto in = sock->GetInputStream();
 	if (ok) {
@@ -150,6 +153,9 @@ http_response http_request::perform() {
                 Net::Http::Response resp(std::make_shared<Net::Http::V1::ResponseImpl>());
                 resp.Decode(beg, end);
                 status = resp.status;
+                if(status != 200) {
+                    throw std::runtime_error("Unexpected failure");
+                }
                 // printf("Status %ld\n", status);
                 //std::search(beg, buffer.begin() + len, )
             }
@@ -198,5 +204,9 @@ http_response http_request::perform() {
 }
 
 void http_request::perform(std::function<void(http_response)> success, std::function<void(std::exception_ptr)> error) {
-    success(perform());
+    try {
+        success(perform());
+    } catch(...) {
+        error(std::current_exception());
+    }
 }
