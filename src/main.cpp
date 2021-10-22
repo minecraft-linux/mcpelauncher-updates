@@ -99,8 +99,11 @@ extern "C" void __attribute__ ((visibility ("default"))) mod_preinit() {
                     printf("Invalid Url\n");
                 } else {
 #if defined(__arm__) || defined(__aarch64__)
-                    mcpelauncher_preinithook("_ZN5Mouse4feedEccssss", (void*)&Mouse_feed, (void**)&Mouse_feed_org);
-                    mcpelauncher_preinithook("_ZN11MouseMapper4tickER15InputEventQueueR23ControllerIDtoClientMap", (void*)&MouseMapper_tick, (void**)&MouseMapper_tick_org);
+                    // Enable by default after mouse bug is resolved
+                    if(getenv("MCPELAUNCHER_ENABLE_SCROLL_HOOK") != nullptr) {
+                        mcpelauncher_preinithook("_ZN5Mouse4feedEccssss", (void*)&Mouse_feed, (void**)&Mouse_feed_org);
+                        mcpelauncher_preinithook("_ZN11MouseMapper4tickER15InputEventQueueR23ControllerIDtoClientMap", (void*)&MouseMapper_tick, (void**)&MouseMapper_tick_org);
+                    }
 #endif
 
                     mcpelauncher_preinithook("pthread_getattr_np", (void*)+[](pthread_t th, pthread_attr_t* attr) -> int {
