@@ -78,3 +78,33 @@ jobs:
         name: update-${{format('android-{0}', matrix.abi)}}
         path: |
           build/libmcpelauncherupdates.so      
+  deploy:
+    needs: build
+    name: Deploy to mcpelauncher-updates-bin
+    runs-on: ubuntu-latest
+    steps:
+    - uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: setup git
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+    - uses: actions/download-artifact@v2
+      with:
+        path: "artifacts"
+    - run: |
+        shopt -s globstar
+        git clone git@github.com:minecraft-linux/mcpelauncher-updates-bin.git mcpelauncher-updates-bin
+        rm mcpelauncher-updates-bin/*/*.so || :
+        git -C mcpelauncher-updates-bin checkout armeabi-v7a/libmodloader.so || :
+        git -C mcpelauncher-updates-bin checkout arm64-v8a/libmodloader.so || :
+        mkdir -p mcpelauncher-updates-bin/x86
+        cp artifacts/*-x86/*.so mcpelauncher-updates-bin/x86/
+        mkdir -p mcpelauncher-updates-bin/x86_64
+        cp artifacts/*-x86_64/*.so mcpelauncher-updates-bin/x86_64/
+        mkdir -p mcpelauncher-updates-bin/armeabi-v7a
+        cp artifacts/*-armeabi-v7a/*.so mcpelauncher-updates-bin/armeabi-v7a/
+        mkdir -p mcpelauncher-updates-bin/arm64-v8a
+        cp artifacts/*-arm64-v8a/*.so mcpelauncher-updates-bin/arm64-v8a/
+        patchelf --set-rpath \$ORIGIN mcpelauncher-updates-bin/armeabi-v7a/*.so mcpelauncher-updates-bin/arm64-v8a/*.so
