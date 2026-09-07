@@ -7,8 +7,17 @@
 #include <vector>
 #include <jni.h>
 #include <filesystem>
+#include <fstream>
 #include <cmath>
 #include <jni.h>
+
+#ifdef __aarch64__
+#define ARCH_FOLDER "arm64-v8a"
+#else
+#define ARCH_FOLDER "x86_64"
+#endif
+
+using dlsym_fn = void *(*)(void *handle, const char *name);
 
 struct cryptstring {
   const char* _ptr;
@@ -218,13 +227,16 @@ static void add_symbols() {
     return;
   }
 
-  if(androidAndChromeOSIntelArm64(*mcpelauncher_package_version_code, 2113000, 2602999)) {
+  // 1.26.45.x uses version code 26045xx. Keep the DRM compatibility module
+  // enabled through that maintained release line as well as the prior 1.26.x
+  // releases; the replacement PlayFab library is ABI-compatible across it.
+  if(androidAndChromeOSIntelArm64(*mcpelauncher_package_version_code, 2113000, 2604999)) {
     Dl_info info;
     dladdr((void*)&___strlcpy_chk, &info);
     dlopen_ptr((std::filesystem::path(info.dli_fname).parent_path() / cryptstring("patches") / cryptstring("libPlayFabMultiplayer.so")).c_str(), RTLD_NOW);
     IF_DEBUG(std::cout << std::filesystem::path(info.dli_fname).parent_path() / cryptstring("patches") / cryptstring("libPlayFabMultiplayer.so") << std::endl);
 
-    if(androidAndChromeOSIntelArm64(*mcpelauncher_package_version_code, 2601000, 2602999)) { 
+    if(androidAndChromeOSIntelArm64(*mcpelauncher_package_version_code, 2601000, 2604999)) { 
       std::filesystem::path outPath{std::filesystem::path(info.dli_fname).parent_path() / cryptstring("patches") / "v1.26.0.2/" ARCH_FOLDER};
       std::filesystem::create_directories(outPath);
 
@@ -279,6 +291,12 @@ static void add_symbols() {
 extern "C" void mod_init();
 
 __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserved) {
+#ifdef MCPELAUNCHER_UPDATES_STANDALONE
+  // On non-Android hosts the launcher invokes mod_preinit directly. Re-entering
+  // PairIP through the Android JNI bridge is unnecessary and can trip its
+  // platform-integrity signal path before the compatibility hooks are applied.
+  return JNI_VERSION_1_6;
+#else
   JNIEnv* env = nullptr;
   vm->GetEnv((void**)&env, JNI_VERSION_1_6);
 #ifdef ENABLE_VALIDATION
@@ -327,6 +345,7 @@ __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserve
   }
   JNI_OnLoad_ptr(vm, reserved);
   return 0;
+#endif
 }
 
 __attribute__((visibility("default"))) extern "C" void mod_preinit() {
@@ -334,5 +353,9 @@ __attribute__((visibility("default"))) extern "C" void mod_preinit() {
 }
 
 __attribute__((visibility("default"))) extern "C" void mod_init() {
+#ifdef ENABLE_VALIDATION
   validate(+[]() {});
+#else
+  add_symbols();
+#endif
 }

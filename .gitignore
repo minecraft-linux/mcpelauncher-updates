@@ -1,4 +1,5 @@
 build/
+build-protoc/
 .*/
 PlayFabMultiplayer/
 PlayFabMultiplayer.AndroidRelease.zip
